@@ -6,6 +6,7 @@ const getAllUsers = async (req, res) => {
         res.json(users);
     } catch (err) {
         console.error(err.message);
+        console.log("hello");
         res.status(500).send('Server Error');
     }
 };
