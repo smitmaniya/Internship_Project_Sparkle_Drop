@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
     try {
         let user = await User.findOne({ email });
         if (user) {
@@ -13,7 +13,9 @@ exports.register = async (req, res) => {
         user = new User({
             name,
             email,
-            password
+            password,
+            role: role !== undefined ? role : 0 // Default role is 0 (User)
+
         });
           //console.log("Hellooo",user);
         const salt = await bcrypt.genSalt(10);
@@ -38,7 +40,7 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     try {
         let user = await User.findOne({ email });
         if (!user) {
@@ -47,6 +49,11 @@ exports.login = async (req, res) => {
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+            return res.status(400).json({ msg: 'Invalid credentials' });
+        }
+
+        let role_data = await User.findOne({ role });
+        if (!role_data) {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
 

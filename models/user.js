@@ -16,7 +16,8 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        default: 'customer'
+        enum: [0, 1, 2],// 0 for User, 1 for Driver, 2 for Service Provider
+        default: 0 // Default role is 'User'
     }
 });
 

@@ -1,13 +1,25 @@
 const User = require('../models/user');
 
-exports.getUser = async (req, res) => {
+const getAllUsers = async (req, res) => {
     try {
-        // const user = await User.findById(req.user.id).select('-password');
-        const user = await User.findAll();
-
-        res.json(user);
+        const users = await User.find();
+        res.json(users);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server error');
+        res.status(500).send('Server Error');
     }
+};
+
+const getServiceProviders = async (req, res) => {
+    try {
+        const serviceProviders = await User.find({ role: 2 });
+        res.json(serviceProviders);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+module.exports = {
+    getAllUsers,getServiceProviders
 };
