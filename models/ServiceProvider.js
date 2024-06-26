@@ -18,19 +18,19 @@ const ServiceProviderSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    zip_code: {
+    postalCode: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     cnumber: {
         type: Number,
         required: true,
         unique: true
     },
-    service_name: {
+    description: {
         type: String,
-        enum: [String],
-       // required: true
+       required: true
     },
     price: {
         type: Number,
