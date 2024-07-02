@@ -19,6 +19,10 @@ createdAt:
 Price:{
     type:Number,
     required:true
+},
+quantity:{
+    type:Number,
+    required:true
 }
 });
 
