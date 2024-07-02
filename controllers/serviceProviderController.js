@@ -2,15 +2,27 @@ const axios = require('axios');
 const ServiceProvider = require('../models/ServiceProvider');
 const UserProfile = require('../models/userProfileModel');
 
-// Function to get coordinates from postal code
-const getCoordinates = async (postalCode) => {
-  const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&postalcode=${postalCode}&countrycodes=us`);
+// Function to get coordinates from address
+const getCoordinates = async (address) => {
+  const response = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+    params: {
+      format: 'json',
+      q: address,
+      countrycodes: 'ca'
+    },
+    headers: {
+      'User-Agent': 'YourAppName/1.0 (your-email@example.com)'
+    }
+  });
+
   if (response.data.length === 0) {
-    throw new Error('Location not found');
+    console.warn(`Location not found for address: ${address}`);
+    return null;
   }
+
   return {
-    lat: response.data[0].lat,
-    lon: response.data[0].lon
+    lat: parseFloat(response.data[0].lat),
+    lon: parseFloat(response.data[0].lon)
   };
 };
 
@@ -34,6 +46,7 @@ const deg2rad = (deg) => {
 
 const findServiceProvidersInRange = async (req, res) => {
   const userId = req.params.userId;
+  const { page = 1, limit = 10 } = req.body;
 
   try {
     const user = await UserProfile.findById(userId);
@@ -41,17 +54,25 @@ const findServiceProvidersInRange = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const userCoords = await getCoordinates(user.postalCode);
+    const userCoords = await getCoordinates(user.address);
+    if (!userCoords) {
+      return res.status(404).json({ error: 'User location not found' });
+    }
+
     const serviceProviders = await ServiceProvider.find();
     const nearbyProviders = [];
 
     for (const provider of serviceProviders) {
-      const providerCoords = await getCoordinates(provider.postalCode);
+      const providerCoords = await getCoordinates(provider.address);
+      if (!providerCoords) {
+        continue; // Skip providers with invalid addresses
+      }
+
       const distance = getDistanceFromLatLonInKm(
-        parseFloat(userCoords.lat),
-        parseFloat(userCoords.lon),
-        parseFloat(providerCoords.lat),
-        parseFloat(providerCoords.lon)
+        userCoords.lat,
+        userCoords.lon,
+        providerCoords.lat,
+        providerCoords.lon
       );
 
       if (distance <= 5) {
@@ -59,7 +80,19 @@ const findServiceProvidersInRange = async (req, res) => {
       }
     }
 
-    res.json(nearbyProviders);
+    const total = nearbyProviders.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const paginatedProviders = nearbyProviders.slice(startIndex, endIndex);
+
+    res.json({
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      data: paginatedProviders
+    });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'An error occurred while processing your request' });
