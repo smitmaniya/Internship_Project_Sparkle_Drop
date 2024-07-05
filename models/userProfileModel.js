@@ -5,10 +5,10 @@ const UserProfileSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    email: {
+    country: {
         type: String,
-        required: true,
-        unique: true
+        required: true
+        
     },
     address: {
         type: String,
@@ -29,6 +29,10 @@ const UserProfileSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
         required: true
+    },
+    profileImage: {
+        type: String,  // Store the image URL or path
+        required: false
     }
 });
 

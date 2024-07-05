@@ -3,12 +3,12 @@ const Service_Provider = require('../models/ServiceProvider');
 
 
 const service_provider_profile_data = async (req, res) => {
-    const { company_name, email, address, city, province, postalCode,cnumber,service_name,description,price } = req.body;
+    const { company_name, country, address, city, province, postalCode,cnumber,service_name,description } = req.body;
 
     try {
         let service = new Service_Provider({
             company_name,
-            email,
+            country,
             address,
             city,
             province,
@@ -16,7 +16,7 @@ const service_provider_profile_data = async (req, res) => {
             cnumber,
             service_name,
             description,
-            price
+            
         });
 
         data = await service.save();
