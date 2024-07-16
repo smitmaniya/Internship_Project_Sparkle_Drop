@@ -27,6 +27,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/driverdata', driverRoutes);
 app.use('/api/bank-details', bankDetailsRoutes);
 app.use('/api/location', serviceProviderRoutes);
+console.log("***")
 
 
 const PORT = process.env.PORT || 5000;
