@@ -2,6 +2,7 @@ const express = require('express');
 const authRoutes = require('./routes/authRoutes.js');
 const userRoutes = require('./routes/userRoutes.js');
 const driverRoutes = require('./routes/driverRoute.js');
+const cartRoutes = require('./routes/cartRoutes');
 //const userRoute = require('./routes/userRoutes');
 const bankDetailsRoutes = require('./routes/bankDetailsRoutes');
 const serviceRoute = require('./routes/service.js');
@@ -22,6 +23,7 @@ app.use('/api/users', authRoutes,userRoutes);
 //app.use('/api/user', userRoute);// for customer
 app.use('/api/service-providers', serviceRoute);
 app.use('/orders', orderRoutes);
+app.use('/api/cart', cartRoutes);
 app.use('/driverdata', driverRoutes);
 app.use('/api/bank-details', bankDetailsRoutes);
 app.use('/api/location', serviceProviderRoutes);

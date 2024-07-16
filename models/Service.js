@@ -29,6 +29,11 @@ const ServiceSchema = new mongoose.Schema({
     createdDate: {
         type: Date,
         default: Date.now
+    },
+    status: {
+        type: String,
+        enum: ['active', 'inactive', 'pending'],
+        default: 'pending'
     }
 });
 

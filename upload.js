@@ -38,3 +38,4 @@ function checkFileType(file, cb) {
 }
 
 module.exports = upload;
+

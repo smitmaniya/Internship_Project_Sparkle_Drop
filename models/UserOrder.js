@@ -13,9 +13,9 @@ const orderSchema = new mongoose.Schema({
   serviceProvider: { type: mongoose.Schema.Types.ObjectId, ref: 'Service_Provider' },
   status: {
     type: String,
-    enum: ['Remaining', 'Ongoing', 'Completed'],
-    default: 'Remaining'
-  }
+    enum: ['pending', 'inprogress', 'completed'],
+    default: 'pending'
+}
 });
 
 module.exports = mongoose.model('Order', orderSchema);

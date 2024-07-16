@@ -77,6 +77,21 @@ exports.deleteService = async (req, res) => {
     }
 };
 
+exports.updateServiceStatus = async (req, res) => {
+    const { serviceId } = req.params;
+    const { status } = req.body;
+
+    try {
+        const service = await Service.findByIdAndUpdate(serviceId, { status }, { new: true });
+        if (!service) {
+            return res.status(404).json({ error: 'Service not found' });
+        }
+        res.status(200).json(service);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'An error occurred while updating the service status' });
+    }
+};
 /*
 exports.removeservice = async(req, res) => {
     const serviceId = req.params.id;

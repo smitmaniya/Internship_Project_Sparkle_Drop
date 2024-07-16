@@ -1,12 +1,12 @@
 const express = require('express');
 const { service_provider_profile_data} = require('../controllers/service_provider.js');
+const serviceController = require('../controllers/servicelist');
 const {addService,getAllServices, deleteService,updateService} = require('../controllers/servicelist.js')
 const {
     createServiceProviderProfile,
     updateServiceProviderProfile,
     getAllServiceProviders
 } = require('../controllers/serviceProviderProfileController');
-
 
 const auth = require('../middlewares/authMiddleware.js');
 const router = express.Router();
@@ -20,5 +20,8 @@ router.put('/updateservice/:id',updateService);
 router.post('/CreateServiceProviderprofile', createServiceProviderProfile);
 router.put('/:id', updateServiceProviderProfile);
 router.get('/getallserviceprovider', getAllServiceProviders);
+router.put('/service/:serviceId/status', serviceController.updateServiceStatus);
+
+
 
 module.exports = router;

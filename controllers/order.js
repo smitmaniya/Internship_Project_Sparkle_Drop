@@ -148,3 +148,19 @@ exports.getServiceProviderStats = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.updateOrderStatus = async (req, res) => {
+  const { orderId } = req.params;
+  const { status } = req.body;
+
+  try {
+      const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+      if (!order) {
+          return res.status(404).json({ message: 'Order not found' });
+      }
+      res.status(200).json(order);
+  } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'An error occurred while updating the order status' });
+  }
+};

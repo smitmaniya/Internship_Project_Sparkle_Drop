@@ -205,21 +205,32 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
+
     try {
-        let user = await User.findOne({ email });
+        const user = await User.findOne({ email });
+
         if (!user) {
-            return res.status(400).json({ msg: 'Invalid credentials' });
+            return res.status(404).json({ error: 'User not found' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ msg: 'Invalid credentials' });
+            return res.status(400).json({ error: 'Invalid credentials' });
         }
 
-        res.json({ id: user.id });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        const payload = {
+            user: {
+                id: user._id
+            }
+        };
+
+        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+            if (err) throw err;
+            res.json({ token });
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 };
 
