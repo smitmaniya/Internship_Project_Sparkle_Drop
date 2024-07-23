@@ -4,26 +4,31 @@ const UserProfile = require('../models/userProfileModel');
 
 // Function to get coordinates from address
 const getCoordinates = async (address) => {
-  const response = await axios.get(`https://nominatim.openstreetmap.org/search`, {
-    params: {
-      format: 'json',
-      q: address,
-      countrycodes: 'ca'
-    },
-    headers: {
-      'User-Agent': 'YourAppName/1.0 (your-email@example.com)'
-    }
-  });
+  try {
+    const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+      params: {
+        format: 'json',
+        q: address,
+        countrycodes: 'ca'
+      },
+      headers: {
+        'User-Agent': 'YourAppName/1.0 (your-email@example.com)'
+      }
+    });
 
-  if (response.data.length === 0) {
-    console.warn(`Location not found for address: ${address}`);
+    if (response.data.length === 0) {
+      console.warn(`Location not found for address: ${address}`);
+      return null;
+    }
+
+    return {
+      lat: parseFloat(response.data[0].lat),
+      lon: parseFloat(response.data[0].lon)
+    };
+  } catch (error) {
+    console.error(`Error fetching coordinates for address: ${address}`, error);
     return null;
   }
-
-  return {
-    lat: parseFloat(response.data[0].lat),
-    lon: parseFloat(response.data[0].lon)
-  };
 };
 
 // Function to calculate distance using Haversine formula
@@ -60,12 +65,10 @@ const findServiceProvidersInRange = async (req, res) => {
     }
 
     const serviceProviders = await ServiceProvider.find();
-    const nearbyProviders = [];
-
-    for (const provider of serviceProviders) {
+    const providerPromises = serviceProviders.map(async (provider) => {
       const providerCoords = await getCoordinates(provider.address);
       if (!providerCoords) {
-        continue; // Skip providers with invalid addresses
+        return null;
       }
 
       const distance = getDistanceFromLatLonInKm(
@@ -76,9 +79,13 @@ const findServiceProvidersInRange = async (req, res) => {
       );
 
       if (distance <= 5) {
-        nearbyProviders.push(provider);
+        return provider;
+      } else {
+        return null;
       }
-    }
+    });
+
+    const nearbyProviders = (await Promise.all(providerPromises)).filter(provider => provider !== null);
 
     const total = nearbyProviders.length;
     const startIndex = (page - 1) * limit;
@@ -97,6 +104,8 @@ const findServiceProvidersInRange = async (req, res) => {
     console.error('Error:', error);
     res.status(500).json({ error: 'An error occurred while processing your request' });
   }
+
+  
 };
 
 module.exports = {

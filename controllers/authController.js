@@ -188,7 +188,7 @@ exports.register = async (req, res) => {
             name,
             email,
             password,
-            role: role !== undefined ? role : 0 // Default role is 0 (User)
+            role: role !== undefined ? role : 0 // Default role is 0 (Customer)
         });
 
         const salt = await bcrypt.genSalt(10);
@@ -204,7 +204,7 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     try {
         const user = await User.findOne({ email });
@@ -218,24 +218,22 @@ exports.login = async (req, res) => {
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
-        const payload = {
-            user: {
-                id: user._id
-            }
-        };
 
-        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
-            if (err) throw err;
-            res.json({ token });
-        });
+        // Convert roles to numbers before comparing
+        const userRole = Number(user.role);
+        const providedRole = Number(role);
+
+        // Check if the role matches
+        if (userRole !== providedRole) {
+            return res.status(403).json({ error: 'Role mismatch' });
+        }
+
+        res.json({ id: user.id });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Server error' });
     }
-};
-
-// The rest of your methods remain the same
-exports.forgotPassword = async (req, res) => {
+};exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
     try {
         const user = await User.findOne({ email });

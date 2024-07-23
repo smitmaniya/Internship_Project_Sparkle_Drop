@@ -13,6 +13,10 @@ const ServiceProviderSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    price: {
+        type: Number,
+        required: true
+    },
     city: {
         type: String,
         required: true
