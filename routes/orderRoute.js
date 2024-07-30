@@ -14,6 +14,8 @@ router.get('/service-provider/:id', orderController.getOrdersByServiceProvider);
 router.delete('/:id', orderController.deleteOrder);
 router.get('/stats/:id', orderController.getServiceProviderStats);
 router.put('/order/:orderId/status', orderController.updateOrderStatus);
+router.post('/user/order', orderController.getOrdersByUser);
+
 
 
 module.exports = router;

@@ -27,6 +27,7 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ message: 'Invalid service provider ID' });
     }
 
+
     const order = new Order({
       orderNumber: generateOrderNumber(),
       serviceProvider: req.body.serviceProvider,
@@ -35,7 +36,7 @@ exports.createOrder = async (req, res) => {
       time: req.body.time,
       amount: req.body.amount,
       destination: req.body.destination,
-      status: req.body.status || 'Remaining'
+      //status: req.body.status || 'Remaining'
     });
 
     const newOrder = await order.save();
@@ -67,6 +68,17 @@ exports.getOrdersByServiceProvider = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getOrdersByUser = async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    const orders = await Order.find({ customer: userId }).populate('serviceProvider').populate('customer');
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 
 // Update an order
 exports.updateOrder = async (req, res) => {
