@@ -10,6 +10,7 @@ const service_provider_profile_data = async (req, res) => {
             
             company_name,
             country,
+            
             address,
             city,
             province,
