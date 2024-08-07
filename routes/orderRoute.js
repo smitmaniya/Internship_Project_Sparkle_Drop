@@ -9,6 +9,7 @@ router.get('/', orderController.getAllOrders);
 router.post('/', orderController.createOrder);
 //router.get('/serviceProvider/:name', orderController.getOrdersByServiceProviderName);
 router.get('/:id', orderController.getOrderById);
+console.log("######");//checking
 router.patch('/:id', orderController.updateOrder);
 router.get('/service-provider/:id', orderController.getOrdersByServiceProvider); 
 router.delete('/:id', orderController.deleteOrder);
