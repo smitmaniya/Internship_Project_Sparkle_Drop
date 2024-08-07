@@ -14,9 +14,9 @@ const ServiceProviderSchema = new mongoose.Schema({
         required: true
     },
     price: {
-        type: Number,
-        required: true
-    },
+        type: Number
+           },
+    
     city: {
         type: String,
         required: true

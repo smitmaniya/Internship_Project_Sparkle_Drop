@@ -33,8 +33,7 @@ const ServiceProviderSchema = new mongoose.Schema({
        required: true
     },
     price: {
-        type: Number,
-        required: true
+        type: Number
     },
     email: {
         type: String,

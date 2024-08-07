@@ -17,8 +17,7 @@ createdAt:
   default: Date.now 
 },
 Price:{
-    type:Number,
-    required:true
+    type:Number
 },
 quantity:{
     type:Number,

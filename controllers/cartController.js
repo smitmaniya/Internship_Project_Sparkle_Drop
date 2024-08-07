@@ -88,6 +88,7 @@ exports.getCartItemsByServiceProvider = async (req, res) => {
                 description: item.service.description,
                 price: item.service.price,
                 providerName: item.service.serviceProviderId.company_name,
+                providerid: item.service.serviceProviderId._id,
                 providerAddress: item.service.serviceProviderId.address
             },
             quantity: item.quantity,
@@ -115,15 +116,14 @@ exports.getCartItems = async (req, res) => {
 
     try {
         const cartItems = await CartItem.find({ user: userId })
-            .populate({
-                path: 'service',
-                populate: {
-                    path: 'serviceProviderId',
-                    model: 'Service_Provider',
-                    select: 'company_name'
-                }
-            });
-
+        .populate({
+            path: 'service',
+            populate: {
+                path: 'serviceProviderId',
+                model: 'Service_Provider',
+                select: 'company_name address'
+            }
+        });
         // Calculate total with 13% tax
         const total = cartItems.reduce((acc, item) => acc + item.subtotal * 1.13, 0);
 
@@ -135,7 +135,9 @@ exports.getCartItems = async (req, res) => {
                 _id: item.service._id,
                 name: item.service.name,
                 description: item.service.description,
-                providerName: item.service.serviceProviderId.company_name
+                providerName: item.service.serviceProviderId.company_name,
+                providerid: item.service.serviceProviderId._id,
+                providerAddress: item.service.serviceProviderId.address
             },
             quantity: item.quantity,
             subtotal: item.subtotal.toFixed(2),
@@ -146,72 +148,6 @@ exports.getCartItems = async (req, res) => {
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'An error occurred while fetching cart items' });
-    }
-};
-
-exports.checkout = async (req, res) => {
-    const { services, userId, userAddress, deliveryOption, paymentDetails } = req.body;
-
-    try {
-        const serviceIds = [];
-        const cartItems = await Promise.all(services.map(async ({ serviceId, quantity }) => {
-            const service = await Service.findById(serviceId).populate('serviceProviderId');
-            if (!service) {
-                throw new Error(`Service with ID ${serviceId} not found`);
-            }
-
-            const subtotal = service.price * quantity;
-            let deliveryFee = 0;
-
-            if (deliveryOption === 'standard') {
-                deliveryFee = 5; // Example standard delivery fee
-            } else if (deliveryOption === 'priority') {
-                deliveryFee = 10; // Example priority delivery fee
-            }
-
-            const cartItem = new CartItem({
-                user: userId,
-                service: serviceId,
-                quantity,
-                subtotal,
-                deliveryOption,
-                userAddress,
-                serviceProvider: service.serviceProviderId._id,
-                cardNumber: paymentDetails.cardNumber,
-                cvv: paymentDetails.cvv,
-                expiry: paymentDetails.expiry,
-                county: paymentDetails.county,
-                zip: paymentDetails.zip,
-                nickName: paymentDetails.nickName,
-                deliveryFee,
-                status: 'Pending' // Set initial status to Pending
-            });
-
-            await cartItem.save();
-            serviceIds.push(serviceId); // Collect the service ID
-            return cartItem;
-        }));
-
-        // Calculate totals
-        const totalSubtotal = cartItems.reduce((acc, item) => acc + item.subtotal, 0);
-        const totalDeliveryFee = 5;
-        const totalTax = totalSubtotal * 0.13; // Example 13% tax rate
-        const finalTotal = totalSubtotal + totalDeliveryFee + totalTax;
-
-        res.status(201).json({
-            message: 'Checkout completed successfully',
-            cartItems,
-            serviceIds, // Include the array of service IDs
-            subtotal: totalSubtotal.toFixed(2),
-            deliveryFees: totalDeliveryFee.toFixed(2),
-            taxes: totalTax.toFixed(2),
-            //otherFees: otherFees.toFixed(2),
-            total: finalTotal.toFixed(2),
-            status: 'Pending' // Include the initial status
-        });
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: 'An error occurred during checkout' });
     }
 };
 

@@ -8,6 +8,7 @@ const bankDetailsRoutes = require('./routes/bankDetailsRoutes');
 const serviceRoute = require('./routes/service.js');
 const orderRoutes = require('./routes/orderRoute');
 const serviceProviderRoutes = require('./routes/serviceProviderRoutes');
+const checkoutRoutes = require('./routes/checkout');
 const connectDB = require('./config/db');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -26,6 +27,7 @@ app.use('/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/driverdata', driverRoutes);
 app.use('/api/bank-details', bankDetailsRoutes);
+app.use('/api', checkoutRoutes);
 app.use('/api/location', serviceProviderRoutes);
 //console.log("***")
 
