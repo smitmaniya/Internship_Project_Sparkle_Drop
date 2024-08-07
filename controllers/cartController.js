@@ -7,6 +7,7 @@ exports.addToCart = async (req, res) => {
 
     try {
         const cartItems = await Promise.all(services.map(async ({ serviceId, quantity }) => {
+            console.log("******",cartItems);
             const service = await Service.findById(serviceId);
             if (!service) {
                 throw new Error(`Service with ID ${serviceId} not found`);
